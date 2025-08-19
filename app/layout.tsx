@@ -1,14 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Berkshire_Swash, DM_Serif_Text } from "next/font/google";
+import { Berkshire_Swash ,Lobster, DM_Serif_Text } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
-const berkshireSwash = Berkshire_Swash({
-  variable: "--font-berkshire-swash",
+const lobster = Lobster({
+  variable: "--font-lobster",
   subsets: ["latin"],
   weight: "400",
 });
@@ -19,10 +15,12 @@ const dmSerifText = DM_Serif_Text({
   weight: "400",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const berkshireSwash = Berkshire_Swash({
+  variable: "--font-berkshire-swash",
   subsets: ["latin"],
+  weight: "400",
 });
+
 
 export const metadata: Metadata = {
   title: "IngestLoom",
@@ -35,9 +33,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark" suppressHydrationWarning>
       <body
-        className={`${dmSerifText.variable} ${geistMono.variable} antialiased`}
+        className={`${dmSerifText.variable} ${lobster.variable} antialiased`}
+        suppressHydrationWarning
       >
         <div className="min-h-screen w-full relative">
           {/* Crimson Depth */}
@@ -49,7 +48,9 @@ export default function RootLayout({
             }}
           />
           {/* Your Content/Components */}
-          {children}
+          <div className="relative z-10">
+            {children}
+          </div>
         </div>
       </body>
     </html>

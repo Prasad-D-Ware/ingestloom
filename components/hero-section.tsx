@@ -43,7 +43,7 @@ const HeroSection = () => {
                             Seamlessly ingest and search your documents
                     </div>
                     <div className="mt-6 sm:mt-8 lg:mt-10">
-                        <button onClick={() => router.push('/dashboard')} className="font-berkshire mt-3 text-lg sm:text-xl lg:text-2xl font-semibold px-4 py-3 sm:px-5 sm:py-4 lg:px-6 lg:py-5 rounded-full w-auto bg-transparent border border-white text-white transition-shadow duration-300 hover:cursor-pointer">
+                        <button onClick={() => router.push('/dashboard')} className="font-berkshire mt-3 text-lg sm:text-xl lg:text-2xl font-semibold px-4 py-3 sm:px-5 sm:py-4 lg:px-6 lg:py-4 rounded-full w-auto bg-transparent border border-white text-white transition-shadow duration-300 hover:cursor-pointer">
                             Try Out Now
                         </button>
                     </div>

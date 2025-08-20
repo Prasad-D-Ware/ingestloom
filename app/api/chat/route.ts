@@ -9,12 +9,7 @@ export const runtime = "nodejs";
 export async function POST(req: Request) {
   const { messages, userId } = await req.json();
 
-  // console.log(messages,"messages")
-  // console.log(userId,"userId")
-
-  // Fallback to plain chat if missing inputs
   if (!Array.isArray(messages) || !messages.length) {
-    // console.log("messages is empty")
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: messages || [],
@@ -51,51 +46,54 @@ export async function POST(req: Request) {
   const userQuery: string = lastUserMessage?.content || "";
 
   let retrievedContext = "";
-  try {
-    const embeddings = new OpenAIEmbeddings({
-      model: "text-embedding-3-large",
-      batchSize: 10,
-    });
+  try{
+  const embeddings = new OpenAIEmbeddings({
+    model: "text-embedding-3-large",
+    batchSize: 10,
+  })
 
-    const qdrantConfig: any = {
-      url: process.env.QDRANT_URL || "http://localhost:6333",
-      collectionName: process.env.QDRANT_COLLECTION || "ingestloom-uploads",
+  const qdrantConfig: any = {
+    url: process.env.QDRANT_URL || "http://localhost:6333",
+    collectionName: "ingestloom-uploads"
+  };
+  if (process.env.QDRANT_API_KEY) {
+    qdrantConfig.apiKey = process.env.QDRANT_API_KEY;
+  }
+  const vectorStore = await QdrantVectorStore.fromExistingCollection(embeddings, qdrantConfig);
+
+  const retrieverOptions: any = { k: 6 };
+  if (userId) {
+    retrieverOptions.filter = {
+      must: [
+        {
+          key: "metadata.userId",
+          match: { value: userId },
+        },
+      ],
     };
-    
-    // Add API key if provided
-    if (process.env.QDRANT_API_KEY) {
-      qdrantConfig.apiKey = process.env.QDRANT_API_KEY;
-    }
-    
-    const store = await QdrantVectorStore.fromExistingCollection(embeddings, qdrantConfig);
-
-    let docs: any[] = [];
-    if (userQuery) {
-      const filterUserId = userId
-        ? { must: [{ key: "userId", match: { value: userId } }] }
-        : undefined;
-      docs = await store.similaritySearch(userQuery, 6, filterUserId as any);
-      // console.log({ count_userId_key: docs.length });
-
-      // If none found, try nested metadata key variant
-      if ((!docs || docs.length === 0) && userId) {
-        const filterMetaUserId = { must: [{ key: "metadata.userId", match: { value: userId } }] };
-        docs = await store.similaritySearch(userQuery, 6, filterMetaUserId as any);
-        // console.log({ count_metadata_userId_key: docs.length });
+  }
+  let relevantChunks: any[] = []
+  try {
+    const vectorRetriever = vectorStore.asRetriever(retrieverOptions);
+    relevantChunks = await vectorRetriever.invoke(userQuery);
+  } catch (e) {
+    // Fallbacks for potential filter key mismatch or invalid value
+    try {
+      if (userId) {
+        const altRetriever = vectorStore.asRetriever({ k: 6, filter: { must: [{ key: "userId", match: { value: userId } }] } });
+        relevantChunks = await altRetriever.invoke(userQuery);
+      } else {
+        const unfilteredRetriever = vectorStore.asRetriever({ k: 6 });
+        relevantChunks = await unfilteredRetriever.invoke(userQuery);
       }
-
-      if (!docs || docs.length === 0) {
-        const allDocs = await store.similaritySearch(userQuery, 6);
-        // console.log({ count_unfiltered: allDocs.length });
-        if (allDocs && allDocs.length > 0) {
-          docs = allDocs;
-        }
-      }
+    } catch (e2) {
+      const unfilteredRetriever = vectorStore.asRetriever({ k: 6 });
+      relevantChunks = await unfilteredRetriever.invoke(userQuery);
     }
+  }
 
-    // console.log(docs, "docs");
     retrievedContext = JSON.stringify(
-      (docs || []).map((d: any) => ({
+      (relevantChunks || []).map((d: any) => ({
         content: d.pageContent,
         metadata: d.metadata,
       }))
@@ -103,8 +101,6 @@ export async function POST(req: Request) {
   } catch (err : any) {
     console.log("Error Occured in retrieval", err.message) 
   }
-
-  // console.log(retrievedContext,"retrievedContext")
 
   const systemPrompt = `You are a helpful AI assistant. Use the following CONTEXT, if relevant, to answer the user. If the context is not relevant, answer normally. Keep answers concise, and Always cite filenames or page numbers from metadata.\n\nCONTEXT:\n${retrievedContext}`;
 

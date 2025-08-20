@@ -246,7 +246,7 @@ const DashboardPage = () => {
         </div>
       </div>
       <div className="w-full lg:w-2/3 h-2/3 lg:h-full">
-          <ChatApp />
+          <ChatApp userId={userId} />
       </div>
     </div>
   );

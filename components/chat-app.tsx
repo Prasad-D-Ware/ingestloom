@@ -7,14 +7,14 @@ import MarkdownRenderer from "./markdown-renderer";
 
 const CHAT_MESSAGES_STORAGE_KEY = "il_chat_messages";
 
-const ChatApp = () => {
+const ChatApp = ({ userId: userIdProp }: { userId?: string }) => {
   const [input, setInput] = useState<string>("");
   const [messages, setMessages] = useState<any[]>([]);
   const [isSending, setIsSending] = useState<boolean>(false);
   const [isThinking, setIsThinking] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const userId = typeof window !== "undefined" ? localStorage.getItem("il_user_id") : null;
+  const userId = userIdProp ?? (typeof window !== "undefined" ? localStorage.getItem("il_user_id") ?? undefined : undefined);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

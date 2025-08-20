@@ -24,7 +24,7 @@ const berkshireSwash = Berkshire_Swash({
 
 export const metadata: Metadata = {
   title: "IngestLoom",
-  description: "A Rag",
+  description: "IngestLoom is a powerful Retrieval-Augmented Generation (RAG) application that allows you to seamlessly ingest, index, and chat with your documents, text data, and web content using AI.",
 };
 
 export default function RootLayout({

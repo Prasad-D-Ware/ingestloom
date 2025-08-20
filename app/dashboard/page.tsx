@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import IngestDialogContent from "@/components/ingest-dialog-content";
 import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const USER_ID_STORAGE_KEY = "il_user_id";
 const INGEST_DATA_STORAGE_KEY = "il_ingest_data";
@@ -54,6 +55,7 @@ const DashboardPage = () => {
   };
   const [ingestResult, setIngestResult] = React.useState<IngestApiResponse | null>(null);
   const [allUserFiles, setAllUserFiles] = React.useState<FileInfo[]>([]);
+  const router = useRouter();
 
   async function fetchAllUserFiles(userId: string) {
     try {
@@ -142,7 +144,7 @@ const DashboardPage = () => {
       <div className="w-full lg:w-1/3 h-1/3 lg:h-full">
         <div className="border border-white rounded-lg p-2 sm:p-3 h-full flex flex-col justify-between">
           <div className="flex items-center justify-center mb-1 sm:mb-3 flex-col gap-1 sm:gap-3">
-            <div className="text-lg sm:text-2xl font-bold font-berkshire flex items-center gap-2">
+            <div className="text-lg sm:text-2xl font-bold font-berkshire flex items-center gap-2 hover:cursor-pointer" onClick={()=>{router.push("/")}}>
               IngestLoom
             </div>
             <div className="w-full ">

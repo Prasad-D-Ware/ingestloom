@@ -37,7 +37,14 @@ export async function POST(req: Request) {
       const url = (form.get("url") as string | null) || ""
       const userId = sanitizeUserId(form.get("userId") as string | null)
 
-      const baseDir = path.join(process.cwd(), "public", "uploads")
+      // Use /tmp directory for serverless environments (Vercel, AWS Lambda, etc.)
+      // Note: Files in /tmp are temporary and will be lost between function invocations
+      // TODO: For production, implement cloud storage (AWS S3, Google Cloud Storage, etc.)
+      // TODO: Add environment variables for cloud storage configuration
+      // TODO: Implement file upload/download handlers for cloud storage
+      const baseDir = process.env.NODE_ENV === 'production' 
+        ? path.join("/tmp", "uploads")
+        : path.join(process.cwd(), "public", "uploads")
       const userDir = path.join(baseDir, userId)
       await ensureDir(userDir)
 
@@ -82,7 +89,14 @@ export async function POST(req: Request) {
       const { text = "", url = "", userId: rawUserId } = body
       const userId = sanitizeUserId(rawUserId)
 
-      const baseDir = path.join(process.cwd(), "public", "uploads")
+      // Use /tmp directory for serverless environments (Vercel, AWS Lambda, etc.)
+      // Note: Files in /tmp are temporary and will be lost between function invocations
+      // TODO: For production, implement cloud storage (AWS S3, Google Cloud Storage, etc.)
+      // TODO: Add environment variables for cloud storage configuration
+      // TODO: Implement file upload/download handlers for cloud storage
+      const baseDir = process.env.NODE_ENV === 'production' 
+        ? path.join("/tmp", "uploads")
+        : path.join(process.cwd(), "public", "uploads")
       const userDir = path.join(baseDir, userId)
       await ensureDir(userDir)
 

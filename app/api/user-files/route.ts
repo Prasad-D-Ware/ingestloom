@@ -21,7 +21,12 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const userId = sanitizeUserId(url.searchParams.get("userId"));
 
-    const userDir = path.join(process.cwd(), "public", "uploads", userId);
+    // Use /tmp directory for serverless environments (Vercel, AWS Lambda, etc.)
+    // Note: Files in /tmp are temporary and will be lost between function invocations
+    const baseDir = process.env.NODE_ENV === 'production' 
+      ? path.join("/tmp", "uploads")
+      : path.join(process.cwd(), "public", "uploads")
+    const userDir = path.join(baseDir, userId);
     
     let files: string[] = [];
     try {

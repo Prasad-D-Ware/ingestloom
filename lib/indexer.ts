@@ -75,7 +75,12 @@ function stableIdForDoc(userId: string, relativeSourcePath: string, indexWithinF
 }
 
 export async function indexUserUploads(userId: string, options: IndexOptions = {}) {
-  const uploadsDir = path.join(process.cwd(), "public", "uploads", userId)
+  // Use /tmp directory for serverless environments (Vercel, AWS Lambda, etc.)
+  // Note: Files in /tmp are temporary and will be lost between function invocations
+  const baseDir = process.env.NODE_ENV === 'production' 
+    ? path.join("/tmp", "uploads")
+    : path.join(process.cwd(), "public", "uploads")
+  const uploadsDir = path.join(baseDir, userId)
 
   const qdrantUrl = options.qdrantUrl || getEnv("QDRANT_URL", "http://localhost:6333") || "http://localhost:6333"
   const collectionName = options.collectionName || getEnv("QDRANT_COLLECTION", "ingestloom-uploads") || "ingestloom-uploads"

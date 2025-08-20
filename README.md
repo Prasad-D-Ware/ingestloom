@@ -192,45 +192,8 @@ Get all files for a user.
 - **Text**: Direct text input
 - **Web**: Any HTTP/HTTPS URL
 
-## 🚀 Deployment
 
-### Vercel (Recommended)
-
-1. Connect your GitHub repository to Vercel
-2. Set environment variables in Vercel dashboard
-3. Deploy with automatic builds
-
-### Docker
-
-```bash
-# Build the image
-docker build -t ingestloom .
-
-# Run the container
-docker run -p 3000:3000 \
-  -e OPENAI_API_KEY=your_key \
-  -e QDRANT_URL=your_qdrant_url \
-  ingestloom
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙏 Acknowledgments
-
-- Built with [Next.js](https://nextjs.org/)
-- AI powered by [OpenAI](https://openai.com/)
-- Vector search by [Qdrant](https://qdrant.tech/)
-- Document processing with [LangChain](https://langchain.com/)
+**⚠️ Important Note for Production**: In serverless environments like Vercel, files are stored temporarily in `/tmp` and **will be lost between function invocations**. For production use, consider implementing cloud storage (AWS S3, Google Cloud Storage, etc.) for persistent file storage.
 
 ---
 

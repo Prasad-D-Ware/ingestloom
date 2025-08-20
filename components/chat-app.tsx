@@ -1,6 +1,6 @@
 "use client";
 
-import { USER_ID_STORAGE_KEY } from "@/app/dashboard/page";
+
 import { ArrowUp, Trash2 } from "lucide-react";
 import React, { useState, useRef, useEffect } from "react";
 import MarkdownRenderer from "./markdown-renderer";
@@ -14,7 +14,7 @@ const ChatApp = () => {
   const [isThinking, setIsThinking] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const userId = typeof window !== "undefined" ? localStorage.getItem(USER_ID_STORAGE_KEY) : null;
+  const userId = typeof window !== "undefined" ? localStorage.getItem("il_user_id") : null;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

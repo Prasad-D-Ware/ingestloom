@@ -12,7 +12,7 @@ import {
 import IngestDialogContent from "@/components/ingest-dialog-content";
 import React, { useEffect } from "react";
 
-export const USER_ID_STORAGE_KEY = "il_user_id";
+const USER_ID_STORAGE_KEY = "il_user_id";
 const INGEST_DATA_STORAGE_KEY = "il_ingest_data";
 
 function generateUserId() {

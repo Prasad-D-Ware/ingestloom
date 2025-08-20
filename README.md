@@ -1,36 +1,237 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# IngestLoom 🧠
 
-## Getting Started
+**The SMARTEST/FASTEST RAG app you've ever used**
 
-First, run the development server:
+IngestLoom is a powerful Retrieval-Augmented Generation (RAG) application that allows you to seamlessly ingest, index, and chat with your documents, text data, and web content using AI.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## ✨ Features
+
+- **Multi-format Document Support**: Upload and process PDF, TXT, MD, and CSV files
+- **Web Crawling**: Extract and index content from any URL
+- **Raw Text Input**: Directly input text data for indexing
+- **AI-Powered Chat**: Chat with your ingested data using OpenAI's GPT models
+- **Vector Search**: Powered by Qdrant for fast and accurate semantic search
+- **User Isolation**: Each user gets their own data namespace
+- **Smart Caching**: Incremental indexing only processes changed files
+- **Modern UI**: Beautiful, responsive interface built with Next.js and Tailwind CSS
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18+ or Bun
+- OpenAI API key
+- Qdrant instance (local or cloud)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd ingestloom
+   ```
+
+2. **Install dependencies**
+   ```bash
+   # Using npm
+   npm install
+   
+   # Or using bun
+   bun install
+   ```
+
+3. **Set up environment variables**
+   
+   Create a `.env.local` file in the root directory:
+   ```env
+   OPENAI_API_KEY=your_openai_api_key_here
+   QDRANT_URL=http://localhost:6333
+   QDRANT_COLLECTION=ingestloom-uploads
+   QDRANT_API_KEY=your_qdrant_api_key_if_using_cloud
+   ```
+
+4. **Start Qdrant (if running locally)**
+   ```bash
+   # Using Docker
+   docker run -p 6333:6333 qdrant/qdrant
+   ```
+
+5. **Run the development server**
+   ```bash
+   npm run dev
+   # or
+   bun dev
+   ```
+
+6. **Open your browser**
+   
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+## 🏗️ Architecture
+
+IngestLoom is built with modern technologies:
+
+- **Frontend**: Next.js 15, React 19, Tailwind CSS
+- **Backend**: Next.js API Routes
+- **AI/ML**: OpenAI GPT-4o-mini, LangChain, OpenAI Embeddings
+- **Vector Database**: Qdrant
+- **File Processing**: PDF parsing, text extraction, web crawling
+- **UI Components**: Radix UI, Lucide Icons
+
+## 📁 Project Structure
+
+```
+ingestloom/
+├── app/
+│   ├── api/
+│   │   ├── chat/           # Chat API with RAG
+│   │   ├── ingest/         # File/text/URL ingestion
+│   │   └── user-files/     # User file management
+│   ├── dashboard/          # Main dashboard interface
+│   └── page.tsx           # Landing page
+├── components/
+│   ├── ui/                # Reusable UI components
+│   ├── chat-app.tsx       # Chat interface
+│   ├── file-dropzone.tsx  # File upload component
+│   └── hero-section.tsx   # Landing page hero
+├── lib/
+│   ├── indexer.ts         # Document processing and indexing
+│   ├── openai.ts          # OpenAI client configuration
+│   └── utils.ts           # Utility functions
+└── public/uploads/        # User uploaded files storage
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🔧 API Endpoints
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### POST `/api/ingest`
+Ingest files, text, or URLs for a user.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**Request**: 
+- Multipart form data or JSON
+- Fields: `files`, `text`, `url`, `userId`
 
-## Learn More
+**Response**:
+```json
+{
+  "success": true,
+  "userId": "user-uuid",
+  "files": ["filename.pdf"],
+  "text": "text-file.txt",
+  "crawl": { "url": "https://example.com", "file": "crawl-file.txt" },
+  "indexing": { "indexed": true, "count": 42 }
+}
+```
 
-To learn more about Next.js, take a look at the following resources:
+### POST `/api/chat`
+Chat with ingested data using RAG.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Request**:
+```json
+{
+  "messages": [{"role": "user", "content": "What is this document about?"}],
+  "userId": "user-uuid"
+}
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Response**: Server-sent events stream with OpenAI response
 
-## Deploy on Vercel
+### GET `/api/user-files`
+Get all files for a user.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Query Parameters**: `userId`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Response**:
+```json
+{
+  "success": true,
+  "userId": "user-uuid",
+  "files": [
+    {
+      "name": "document.pdf",
+      "type": "document",
+      "uploadDate": "2024-01-01T00:00:00.000Z",
+      "size": 1024
+    }
+  ],
+  "totalFiles": 1
+}
+```
+
+## 🎯 Usage
+
+1. **Visit the landing page** - See the animated hero section
+2. **Go to Dashboard** - Click "Try Out Now"
+3. **Ingest content**:
+   - Upload files (PDF, TXT, MD, CSV)
+   - Paste text directly
+   - Enter URLs to crawl
+   - Click "Ingest" to process
+4. **Chat with your data** - Use the chat interface to ask questions about your ingested content
+
+## 🔒 User Data Management
+
+- Each user gets a unique UUID stored in localStorage
+- Files are organized by user ID in the filesystem
+- Vector embeddings include user metadata for filtered retrieval
+- Incremental indexing prevents reprocessing unchanged files
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `OPENAI_API_KEY` | OpenAI API key (required) | - |
+| `QDRANT_URL` | Qdrant instance URL | `http://localhost:6333` |
+| `QDRANT_COLLECTION` | Qdrant collection name | `ingestloom-uploads` |
+| `QDRANT_API_KEY` | Qdrant API key (for cloud) | - |
+
+### Supported File Types
+
+- **Documents**: PDF, TXT, MD, CSV
+- **Text**: Direct text input
+- **Web**: Any HTTP/HTTPS URL
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
+
+1. Connect your GitHub repository to Vercel
+2. Set environment variables in Vercel dashboard
+3. Deploy with automatic builds
+
+### Docker
+
+```bash
+# Build the image
+docker build -t ingestloom .
+
+# Run the container
+docker run -p 3000:3000 \
+  -e OPENAI_API_KEY=your_key \
+  -e QDRANT_URL=your_qdrant_url \
+  ingestloom
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🙏 Acknowledgments
+
+- Built with [Next.js](https://nextjs.org/)
+- AI powered by [OpenAI](https://openai.com/)
+- Vector search by [Qdrant](https://qdrant.tech/)
+- Document processing with [LangChain](https://langchain.com/)
+
+---
+
+**IngestLoom** - Turning your documents into conversations. 🚀

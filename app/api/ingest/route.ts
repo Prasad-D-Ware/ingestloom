@@ -63,6 +63,12 @@ export async function POST(req: Request) {
         const txt = htmlToText(html)
         const name = `crawl-${Date.now()}.txt`
         await writeFile(path.join(userDir, name), txt)
+        
+        // Store URL metadata alongside the crawl file
+        const metadataName = `${name}.meta.json`
+        const metadata = { originalUrl: url, type: 'crawl', timestamp: Date.now() }
+        await writeFile(path.join(userDir, metadataName), JSON.stringify(metadata))
+        
         crawled = { url, file: name }
       }
       const indexingResult = await indexUserUploads(userId).catch((err) => {
@@ -94,6 +100,12 @@ export async function POST(req: Request) {
         const txt = htmlToText(html)
         const name = `crawl-${Date.now()}.txt`
         await writeFile(path.join(userDir, name), txt)
+        
+        // Store URL metadata alongside the crawl file
+        const metadataName = `${name}.meta.json`
+        const metadata = { originalUrl: url, type: 'crawl', timestamp: Date.now() }
+        await writeFile(path.join(userDir, metadataName), JSON.stringify(metadata))
+        
         crawled = { url, file: name }
       }
       const indexingResult = await indexUserUploads(userId).catch((err) => {

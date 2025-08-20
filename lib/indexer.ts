@@ -79,6 +79,7 @@ export async function indexUserUploads(userId: string, options: IndexOptions = {
 
   const qdrantUrl = options.qdrantUrl || getEnv("QDRANT_URL", "http://localhost:6333") || "http://localhost:6333"
   const collectionName = options.collectionName || getEnv("QDRANT_COLLECTION", "ingestloom-uploads") || "ingestloom-uploads"
+  const qdrantApiKey = getEnv("QDRANT_API_KEY")
 
   const openaiKey = getEnv("OPENAI_API_KEY")
   if (!openaiKey) {
@@ -136,6 +137,14 @@ export async function indexUserUploads(userId: string, options: IndexOptions = {
     return { indexed: false, reason: "no_supported_docs" }
   }
 
+  // Ensure each document carries the userId for later retrieval-time filtering
+  for (const doc of docs as any[]) {
+    doc.metadata = {
+      ...(doc.metadata || {}),
+      userId,
+    }
+  }
+
   const embeddings = new OpenAIEmbeddings({
     model: "text-embedding-3-large",
     batchSize: 10,
@@ -143,10 +152,17 @@ export async function indexUserUploads(userId: string, options: IndexOptions = {
   })
 
   // Create or connect to existing collection and upsert with stable IDs
-  const store = await QdrantVectorStore.fromExistingCollection(embeddings, {
+  const qdrantConfig: any = {
     url: qdrantUrl,
     collectionName,
-  })
+  }
+  
+  // Add API key if provided
+  if (qdrantApiKey) {
+    qdrantConfig.apiKey = qdrantApiKey
+  }
+  
+  const store = await QdrantVectorStore.fromExistingCollection(embeddings, qdrantConfig)
 
   // Build stable IDs to make upserts idempotent
   const ids: string[] = []
